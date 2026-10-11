@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Lamplight</title>
+    <meta
+      name="description"
+      content="Hand shadows that come alive on your wall. A seated, hands-only mixed-reality experience for Quest 3 and 3S."
+    />
+    <meta name="theme-color" content="#0e0a07" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Lamplight" />
+    <meta
+      property="og:description"
+      content="Hand shadows that come alive on your wall. Make a rabbit, a dog or a bird with your hands, and it jumps off the wall."
+    />
+    <meta property="og:image" content="https://madhavvan.github.io/lamplight/og.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='31' fill='%230e0a07'/%3E%3Cpath d='M32 9c5 9 13 15 13 27a13 13 0 0 1-26 0c0-7 4-11 7-16 1 5 3 8 6 9-1-7-1-13 0-20z' fill='%23f3b766'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #0e0a07;
+        --cream: #fff0dc;
+        --soft: #e2c8a8;
+        --dim: #b49b7d;
+        --flame: #f3b766;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--ink);
+      }
+      #scene-container {
+        position: fixed;
+        inset: 0;
+      }
+      #landing {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        overflow-y: auto;
+        color: var(--cream);
+        background: radial-gradient(120% 90% at 50% 28%, #4a3019 0%, #24170d 40%, var(--ink) 74%);
+        font-family: Georgia, 'Noto Serif', 'Times New Roman', serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #landing[hidden] {
+        display: none;
+      }
+      #landing .wrap {
+        box-sizing: border-box;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(14px, 2.6vh, 26px);
+        padding: clamp(22px, 5vh, 56px) 16px;
+        text-align: center;
+      }
+      #landing h1 {
+        margin: 0;
+        font-style: italic;
+        font-weight: 700;
+        font-size: clamp(46px, 7.4vw, 92px);
+        line-height: 1;
+        letter-spacing: 0.5px;
+        text-shadow: 0 0 42px rgba(255, 178, 92, 0.35);
+      }
+      #landing .tag {
+        margin: -4px 0 0;
+        font-style: italic;
+        font-size: clamp(18px, 2.2vw, 26px);
+        color: var(--soft);
+      }
+      #landing .film {
+        width: min(100%, 720px);
+        aspect-ratio: 16 / 9;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #000;
+        box-shadow:
+          0 22px 60px rgba(0, 0, 0, 0.6),
+          0 0 0 1px rgba(255, 220, 170, 0.12);
+      }
+      #landing .film video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      #landing .action {
+        min-height: 112px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      #landing .col {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      #landing .go {
+        font: italic 700 clamp(21px, 2.4vw, 26px) / 1 Georgia, 'Noto Serif', serif;
+        color: #1c1209;
+        background: linear-gradient(180deg, #ffd896, #e9a14f);
+        border: 0;
+        border-radius: 999px;
+        padding: 19px 44px;
+        cursor: pointer;
+        box-shadow:
+          inset 0 0 0 1px rgba(255, 232, 196, 0.6),
+          0 10px 32px rgba(233, 161, 79, 0.35);
+      }
+      #landing .go:hover {
+        filter: brightness(1.06);
+      }
+      #landing .go:active {
+        transform: translateY(1px);
+      }
+      #landing .go:focus-visible,
+      #landing .copy:focus-visible {
+        outline: 2px solid var(--cream);
+        outline-offset: 3px;
+      }
+      #landing .note {
+        margin: 0;
+        font-size: 15px;
+        color: var(--dim);
+        letter-spacing: 0.3px;
+      }
+      #landing .lead {
+        margin: 0;
+        max-width: 34em;
+        font-size: clamp(17px, 1.9vw, 20px);
+        line-height: 1.45;
+        color: var(--cream);
+      }
+      #landing .chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 100%;
+        padding: 8px 8px 8px 18px;
+        border-radius: 999px;
+        background: rgba(255, 220, 170, 0.08);
+        border: 1px solid rgba(255, 220, 170, 0.16);
+        font: 600 16px/1.2 ui-monospace, Consolas, monospace;
+        color: var(--cream);
+      }
+      #landing .chip span {
+        overflow-wrap: anywhere;
+        text-align: left;
+      }
+      #landing .copy {
+        flex: none;
+        font: italic 700 15px/1 Georgia, 'Noto Serif', serif;
+        color: #1c1209;
+        background: var(--flame);
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 16px;
+        cursor: pointer;
+      }
+      #landing .wait {
+        margin: 0;
+        font-style: italic;
+        font-size: 18px;
+        color: var(--soft);
+        animation: flicker 1.6s ease-in-out infinite alternate;
+      }
+      @keyframes flicker {
+        from {
+          opacity: 0.45;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      #landing .steps {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        width: min(100%, 860px);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      #landing .steps li {
+        padding: 14px 16px;
+        border-radius: 12px;
+        background: rgba(255, 220, 170, 0.05);
+        border: 1px solid rgba(255, 220, 170, 0.09);
+        text-align: left;
+        font-size: 15px;
+        line-height: 1.4;
+        color: var(--soft);
+      }
+      #landing .steps b {
+        display: block;
+        margin-bottom: 4px;
+        font-style: italic;
+        color: var(--flame);
+      }
+      #landing .when-xr,
+      #landing .when-noxr,
+      #landing .when-wait {
+        display: none;
+      }
+      #landing[data-xr='yes'][data-ready] .when-xr,
+      #landing[data-xr='no'] .when-noxr,
+      #landing:not([data-xr]) .when-wait,
+      #landing[data-xr='yes']:not([data-ready]) .when-wait {
+        display: flex;
+      }
+      @media (max-width: 640px) {
+        #landing .steps {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 480px) {
+        #landing .chip {
+          flex-direction: column;
+          border-radius: 16px;
+          padding: 12px 14px;
+          font-size: 15px;
+        }
+        #landing .chip span {
+          text-align: center;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #landing .wait {
+          animation: none;
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index-CL2K4OOt.js"></script>
+  </head>
+  <body>
+    <div id="scene-container"></div>
+    <main id="landing">
+      <div class="wrap">
+        <h1>Lamplight</h1>
+        <p class="tag">Hand shadows that come alive on your wall</p>
+        <div class="film">
+          <video
+            src="./preview.mp4"
+            poster="./poster.jpg"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="auto"
+            aria-label="A rabbit, a bird and a dog made of hand shadows come alive on a lamplit wall"
+          ></video>
+        </div>
+        <div class="action">
+          <div class="when-xr col">
+            <button id="light-the-lamp" class="go" type="button">Light the lamp</button>
+            <p class="note">Sit facing a wall · put the controllers down · sound on</p>
+          </div>
+          <div class="when-noxr col">
+            <p class="lead">
+              Lamplight is mixed reality, played with your bare hands on a Quest&nbsp;3 or 3S.
+              To play, open this page in the headset’s browser:
+            </p>
+            <div class="chip">
+              <span id="page-url">madhavvan.github.io/lamplight</span>
+              <button id="copy-url" class="copy" type="button">Copy link</button>
+            </div>
+          </div>
+          <div class="when-wait col">
+            <p class="wait">Warming the lamp…</p>
+          </div>
+        </div>
+        <ol class="steps">
+          <li><b>A lantern arrives</b>It settles over your shoulder and lights the wall in front of you.</li>
+          <li><b>Raise your hands</b>Their shadows fall on your real wall, soft-edged like candlelight.</li>
+          <li><b>Match the outline</b>Make the shape it asks for, and your shadow comes alive.</li>
+        </ol>
+      </div>
+    </main>
+    <script>
+      // Paints the right call to action before the app has loaded; src/landing.ts confirms it once
+      // the world (and, in development, the emulator) is ready.
+      (function () {
+        var root = document.getElementById('landing');
+        var ua = navigator.userAgent;
+        var phone = /iPhone|iPad|Android.*Mobile/.test(ua) && !/OculusBrowser/.test(ua);
+        var here = location.host + location.pathname.replace(/index\.html$/, '').replace(/\/$/, '');
+        var urlText = document.getElementById('page-url');
+        if (location.host) urlText.textContent = here;
+        var decide = function (ok) {
+          if (!root.dataset.xrFinal) root.dataset.xr = ok && !phone ? 'yes' : 'no';
+        };
+        var xr = navigator.xr;
+        if (!xr || !xr.isSessionSupported) decide(false);
+        else xr.isSessionSupported('immersive-ar').then(decide, function () { decide(false); });
+        document.getElementById('copy-url').addEventListener('click', function (event) {
+          var button = event.currentTarget;
+          var done = function () {
+            button.textContent = 'Copied';
+            setTimeout(function () { button.textContent = 'Copy link'; }, 1600);
+          };
+          if (navigator.clipboard) navigator.clipboard.writeText(location.href.split('#')[0]).then(done, function () {});
+        });
+        if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          var video = root.querySelector('video');
+          video.removeAttribute('autoplay');
+          video.controls = true;
+        }
+      })();
+    </script>
+  </body>
+</html>
